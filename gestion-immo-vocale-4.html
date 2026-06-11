@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ImmoVoice</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+:root{
+  --bg:#07090f; --s1:#0d1120; --s2:#141929; --s3:#1a2035;
+  --bd:#1f2640; --bd2:#28315a;
+  --acc:#f97316; --a2:#fb923c; --a3:#fed7aa;
+  --tx:#eceef6; --sub:#8b93b5; --mu:#4a5170;
+  --ok:#22c55e; --er:#ef4444; --wa:#f59e0b; --inf:#38bdf8;
+  --r:14px; --r2:10px; --r3:8px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;display:flex;flex-direction:column}
+
+/* ── HEADER ── */
+.hdr{
+  flex-shrink:0;
+  background:rgba(7,9,15,.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--bd);
+  padding:12px 16px;display:flex;align-items:center;gap:10px;
+  z-index:50;
+}
+.logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:800;letter-spacing:-.03em;white-space:nowrap}
+.logo b{color:var(--acc)}
+.ptitle{flex:1;font-size:.82rem;font-weight:500;color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 4px}
+
+/* ── LAYOUT ── */
+.layout{flex:1;display:flex;overflow:hidden}
+
+/* ── SIDEBAR / NAV ── */
+.sidenav{
+  width:200px;flex-shrink:0;
+  background:var(--s1);border-right:1px solid var(--bd);
+  display:flex;flex-direction:column;overflow-y:auto;
+}
+.snav-section{padding:14px 12px 6px;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--mu)}
+.snav-item{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 14px;cursor:pointer;font-size:.82rem;font-weight:500;color:var(--sub);
+  border-left:2.5px solid transparent;transition:all .15s;
+}
+.snav-item:hover{color:var(--tx);background:var(--s2)}
+.snav-item.on{color:var(--acc);border-left-color:var(--acc);background:rgba(249,115,22,.07)}
+.snav-icon{font-size:1rem;width:18px;text-align:center;flex-shrink:0}
+.snav-badge{margin-left:auto;background:var(--er);color:#fff;font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:99px}
+.snav-badge.wa{background:var(--wa);color:#000}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.content{flex:1;overflow-y:auto;padding:18px}
+.content::-webkit-scrollbar{width:4px}
+.content::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:4px}
+
+/* ── AI BAR ── */
+.aibar{
+  flex-shrink:0;
+  background:var(--s1);border-top:1px solid var(--bd);
+  padding:12px 16px 12px;
+}
+.ai-bubble{
+  background:linear-gradient(135deg,rgba(249,115,22,.12),rgba(251,146,60,.05));
+  border:1px solid rgba(249,115,22,.25);
+  border-radius:12px 12px 4px 12px;
+  padding:10px 14px;margin-bottom:10px;
+  font-size:.82rem;color:var(--a3);line-height:1.5;
+  min-height:36px;display:flex;align-items:center;gap:8px;
+}
+.ai-dot{width:6px;height:6px;border-radius:50%;background:var(--acc);flex-shrink:0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.ai-typing{display:inline-flex;gap:3px;align-items:center}
+.ai-typing span{width:5px;height:5px;border-radius:50%;background:var(--a2);animation:dot .9s infinite}
+.ai-typing span:nth-child(2){animation-delay:.15s}
+.ai-typing span:nth-child(3){animation-delay:.3s}
+@keyframes dot{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+.ai-input-row{display:flex;gap:8px;align-items:flex-end}
+.ai-input{
+  flex:1;background:var(--s2);border:1px solid var(--bd2);
+  border-radius:var(--r2);padding:10px 14px;color:var(--tx);
+  font-family:inherit;font-size:.85rem;outline:none;resize:none;
+  max-height:80px;line-height:1.4;transition:border-color .2s;
+}
+.ai-input:focus{border-color:rgba(249,115,22,.5)}
+.ai-input::placeholder{color:var(--mu)}
+.ai-mic{
+  width:40px;height:40px;border-radius:var(--r2);flex-shrink:0;
+  background:var(--s2);border:1px solid var(--bd2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;cursor:pointer;transition:all .2s;
+}
+.ai-mic:hover{border-color:var(--acc);color:var(--acc)}
+.ai-mic.on{background:rgba(249,115,22,.15);border-color:var(--acc);animation:ring 1.5s infinite}
+@keyframes ring{0%,100%{box-shadow:0 0 0 0 rgba(249,115,22,.3)}60%{box-shadow:0 0 0 7px transparent}}
+.ai-send{
+  width:40px;height:40px;border-radius:var(--r2);flex-shrink:0;
+  background:var(--acc);border:none;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;cursor:pointer;transition:background .15s;color:#fff;
+}
+.ai-send:hover{background:var(--a2)}
+
+/* ── SECTIONS ── */
+.sec{display:none}.sec.on{display:block}
+.sh{display:flex;align-items:center;margin-bottom:16px}
+.sh h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:800;flex:1}
+
+/* ── KPI ── */
+.kpi2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.kpi{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:14px;position:relative;overflow:hidden}
+.kpi-top{position:absolute;top:0;left:0;right:0;height:2px;border-radius:var(--r) var(--r) 0 0}
+.kpi-lbl{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--sub);margin-bottom:6px}
+.kpi-v{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;font-weight:800;line-height:1}
+.kpi-sub{font-size:.69rem;color:var(--mu);margin-top:4px}
+.kpi-tr{font-size:.69rem;font-weight:700;margin-top:3px}
+
+/* ── CARD ── */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;margin-bottom:12px}
+.chd{padding:12px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px}
+.chd h3{font-size:.84rem;font-weight:700;flex:1}
+.cbody{padding:10px 14px}
+
+/* ── LIST ── */
+.li{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid rgba(31,38,64,.8)}
+.li:last-child{border:none}
+.li-ic{width:36px;height:36px;border-radius:9px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.li-b{flex:1;min-width:0}
+.li-nm{font-weight:600;font-size:.84rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li-s{font-size:.71rem;color:var(--sub);margin-top:2px}
+.li-r{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.li-rv{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.88rem}
+
+/* ── TAGS ── */
+.t{display:inline-block;padding:2px 7px;border-radius:99px;font-size:.65rem;font-weight:700}
+.tg{background:rgba(34,197,94,.12);color:#4ade80}
+.tr{background:rgba(239,68,68,.12);color:#f87171}
+.ty{background:rgba(245,158,11,.12);color:#fbbf24}
+.tb{background:rgba(56,189,248,.12);color:#38bdf8}
+.tx{background:rgba(74,81,112,.2);color:var(--sub)}
+
+/* ── PROPERTY ── */
+.pc{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);display:flex;overflow:hidden;cursor:pointer;transition:border-color .2s;margin-bottom:10px}
+.pc:hover{border-color:var(--acc)}
+.pc-thumb{width:68px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.8rem;background:var(--s2)}
+.pc-body{padding:12px;flex:1;min-width:0}
+.pc-nm{font-weight:700;font-size:.88rem}
+.pc-addr{font-size:.71rem;color:var(--sub);margin:2px 0 8px}
+.pc-tags{display:flex;gap:5px;flex-wrap:wrap}
+
+/* ── CHART ── */
+.chartw{padding:10px 14px 6px}
+.cbars{display:flex;align-items:flex-end;gap:3px;height:60px}
+.bc{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
+.bf{width:100%;border-radius:3px 3px 0 0;min-height:3px;background:linear-gradient(180deg,var(--acc),rgba(249,115,22,.25));transition:height .7s}
+.bf.dim{background:var(--s3)}
+.bl{font-size:.52rem;color:var(--mu);text-align:center}
+
+/* ── ALERT ── */
+.al{display:flex;align-items:flex-start;gap:8px;padding:10px 0;border-bottom:1px solid rgba(31,38,64,.7)}
+.al:last-child{border:none}
+.al-dot{width:6px;height:6px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.al-nm{font-size:.82rem;font-weight:600}
+.al-s{font-size:.71rem;color:var(--sub);margin-top:1px}
+
+/* ── BTN ── */
+.btn{background:var(--acc);color:#fff;border:none;border-radius:var(--r2);padding:8px 14px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:background .15s}
+.btn:hover{background:var(--a2)}
+.bsm{padding:6px 11px;font-size:.73rem}
+.bgh{background:transparent;border:1px solid var(--bd2);color:var(--sub);border-radius:var(--r2);padding:7px 12px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.bgh:hover{border-color:var(--acc);color:var(--acc)}
+
+/* ── MODAL ── */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:500;align-items:flex-end;justify-content:center}
+.ov.on{display:flex}
+.mo{background:var(--s1);border:1px solid var(--bd);border-radius:18px 18px 0 0;padding:18px 16px 32px;width:100%;max-width:500px;max-height:85vh;overflow-y:auto;animation:sup .25s ease}
+@keyframes sup{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.mh{width:30px;height:3px;border-radius:2px;background:var(--bd2);margin:0 auto 16px}
+.mo h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:.98rem;font-weight:800;margin-bottom:14px}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:.65rem;font-weight:700;color:var(--sub);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.fg input,.fg select,.fg textarea{width:100%;background:var(--s2);border:1px solid var(--bd);border-radius:var(--r3);padding:9px 12px;color:var(--tx);font-family:inherit;font-size:.84rem;outline:none;transition:border-color .2s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--acc)}
+.fg select option{background:var(--s2)}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.mf{display:flex;justify-content:flex-end;gap:7px;margin-top:16px}
+
+/* ── TOAST ── */
+.tct{position:fixed;top:60px;right:12px;z-index:999;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.tst{background:var(--s2);border:1px solid var(--bd);border-left:3px solid var(--acc);border-radius:9px;padding:9px 14px;font-size:.79rem;min-width:190px;max-width:250px;animation:tin .3s ease;pointer-events:auto}
+.tst.ok{border-left-color:var(--ok)}.tst.er{border-left-color:var(--er)}.tst.wa{border-left-color:var(--wa)}
+@keyframes tin{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  .sidenav{display:none}
+  .mobile-nav{display:flex}
+}
+.mobile-nav{
+  display:none;position:fixed;bottom:0;left:0;right:0;
+  background:var(--s1);border-top:1px solid var(--bd);z-index:200;
+}
+.mni{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 4px 6px;cursor:pointer;font-size:.52rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.04em;transition:color .15s}
+.mni.on{color:var(--acc)}
+.mni-ico{font-size:1.15rem}
+@media(max-width:640px){.content{padding:14px 14px 130px}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="logo">Immo<b>Voice</b></div>
+  <div class="ptitle" id="ptitle">Tableau de bord</div>
+  <button onclick="openM('mKey')" title="Configurer la cle API" style="background:none;border:none;cursor:pointer;font-size:1.1rem;padding:4px 6px;opacity:.6;transition:opacity .2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.6">&#x1F511;</button>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <nav class="sidenav">
+    <div class="snav-section">Principal</div>
+    <div class="snav-item on" id="sn-dashboard" onclick="goto('dashboard')"><span class="snav-icon">&#x1F4CA;</span>Tableau de bord</div>
+    <div class="snav-item" id="sn-biens" onclick="goto('biens')"><span class="snav-icon">&#x1F3E0;</span>Biens</div>
+    <div class="snav-item" id="sn-locataires" onclick="goto('locataires')"><span class="snav-icon">&#x1F465;</span>Locataires</div>
+    <div class="snav-section">Finance</div>
+    <div class="snav-item" id="sn-loyers" onclick="goto('loyers')"><span class="snav-icon">&#x1F4B0;</span>Loyers<span class="snav-badge">1</span></div>
+    <div class="snav-item" id="sn-charges" onclick="goto('charges')"><span class="snav-icon">&#x1F4CB;</span>Charges</div>
+    <div class="snav-section">Documents</div>
+    <div class="snav-item" id="sn-contrats" onclick="goto('contrats')"><span class="snav-icon">&#x1F4C4;</span>Contrats</div>
+    <div class="snav-item" id="sn-maint" onclick="goto('maint')"><span class="snav-icon">&#x1F527;</span>Maintenance<span class="snav-badge wa">3</span></div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="content" id="maincontent">
+
+      <!-- DASHBOARD -->
+      <div class="sec on" id="sec-dashboard">
+        <div class="kpi2">
+          <div class="kpi"><div class="kpi-top" style="background:var(--acc)"></div>
+            <div class="kpi-lbl">Biens</div><div class="kpi-v" style="color:var(--acc)">5</div>
+            <div class="kpi-sub">Apparts &amp; maisons</div><div class="kpi-tr" style="color:var(--ok)">+1 ce mois</div>
+          </div>
+          <div class="kpi"><div class="kpi-top" style="background:var(--ok)"></div>
+            <div class="kpi-lbl">Loyers juin</div><div class="kpi-v" style="color:var(--ok)">3 850&#8364;</div>
+            <div class="kpi-sub">4 / 5 encaisses</div><div class="kpi-tr" style="color:var(--er)">1 en retard</div>
+          </div>
+          <div class="kpi"><div class="kpi-top" style="background:var(--inf)"></div>
+            <div class="kpi-lbl">Occupation</div><div class="kpi-v" style="color:var(--inf)">80%</div>
+            <div class="kpi-sub">4 biens loues</div><div class="kpi-tr" style="color:var(--ok)">Stable</div>
+          </div>
+          <div class="kpi"><div class="kpi-top" style="background:var(--er)"></div>
+            <div class="kpi-lbl">Travaux</div><div class="kpi-v" style="color:var(--er)">3</div>
+            <div class="kpi-sub">En attente</div><div class="kpi-tr" style="color:var(--er)">2 urgentes</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="chd"><h3>Revenus 2025</h3><span class="t tg">+6%</span></div>
+          <div class="chartw">
+            <div class="cbars" id="chartBars"></div>
+            <div style="display:flex;gap:3px;margin-top:4px" id="chartLbls"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="chd"><h3>Alertes</h3><span class="t tr">4</span></div>
+          <div class="cbody" style="padding-top:4px;padding-bottom:4px">
+            <div class="al"><div class="al-dot" style="background:var(--er)"></div><div><div class="al-nm">Apt 3B &mdash; Loyer en retard</div><div class="al-s">12 jours de retard</div></div></div>
+            <div class="al"><div class="al-dot" style="background:var(--wa)"></div><div><div class="al-nm">Studio Loti &mdash; Bail expire bientot</div><div class="al-s">Dans 30 jours</div></div></div>
+            <div class="al"><div class="al-dot" style="background:var(--er)"></div><div><div class="al-nm">Studio Loti &mdash; Chauffe-eau en panne</div><div class="al-s">Intervention urgente</div></div></div>
+            <div class="al"><div class="al-dot" style="background:var(--inf)"></div><div><div class="al-nm">Apt 7F &mdash; Contrat renouvele</div><div class="al-s">Bail jusqu'au 01/01/2026</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BIENS -->
+      <div class="sec" id="sec-biens">
+        <div class="sh"><h2>Biens immobiliers</h2><button class="btn bsm" onclick="openM('mBien')">+ Ajouter</button></div>
+        <div id="propCards"></div>
+      </div>
+
+      <!-- LOCATAIRES -->
+      <div class="sec" id="sec-locataires">
+        <div class="sh"><h2>Locataires</h2><button class="btn bsm" onclick="openM('mLoc')">+ Ajouter</button></div>
+        <div class="card"><div class="cbody" style="padding-top:4px;padding-bottom:4px" id="locList"></div></div>
+      </div>
+
+      <!-- LOYERS -->
+      <div class="sec" id="sec-loyers">
+        <div class="sh"><h2>Loyers &mdash; Juin 2025</h2><button class="btn bsm" onclick="openM('mPay')">+ Saisir</button></div>
+        <div class="kpi2" style="grid-template-columns:1fr 1fr 1fr">
+          <div class="kpi"><div class="kpi-top" style="background:var(--ok)"></div><div class="kpi-lbl">Encaisse</div><div class="kpi-v" style="font-size:1.15rem;color:var(--ok)">3 150&#8364;</div></div>
+          <div class="kpi"><div class="kpi-top" style="background:var(--er)"></div><div class="kpi-lbl">En retard</div><div class="kpi-v" style="font-size:1.15rem;color:var(--er)">700&#8364;</div></div>
+          <div class="kpi"><div class="kpi-top" style="background:var(--sub)"></div><div class="kpi-lbl">Attendu</div><div class="kpi-v" style="font-size:1.15rem">3 850&#8364;</div></div>
+        </div>
+        <div class="card"><div class="cbody" style="padding-top:4px;padding-bottom:4px" id="loyerList"></div></div>
+      </div>
+
+      <!-- CHARGES -->
+      <div class="sec" id="sec-charges">
+        <div class="sh"><h2>Charges</h2><button class="btn bsm" onclick="openM('mCharge')">+ Ajouter</button></div>
+        <div class="card"><div class="cbody" style="padding-top:4px;padding-bottom:4px" id="chargeList"></div></div>
+      </div>
+
+      <!-- CONTRATS -->
+      <div class="sec" id="sec-contrats">
+        <div class="sh"><h2>Contrats de bail</h2></div>
+        <div class="card"><div class="cbody" style="padding-top:4px;padding-bottom:4px" id="contratList"></div></div>
+      </div>
+
+      <!-- MAINTENANCE -->
+      <div class="sec" id="sec-maint">
+        <div class="sh"><h2>Maintenance</h2><button class="btn bsm" onclick="openM('mMaint')">+ Signaler</button></div>
+        <div class="card"><div class="cbody" style="padding-top:4px;padding-bottom:4px" id="maintList"></div></div>
+      </div>
+
+    </div><!-- /content -->
+
+    <!-- AI BAR -->
+    <div class="aibar">
+      <div class="ai-bubble" id="aiBubble">
+        <div class="ai-dot"></div>
+        <span id="aiMsg">Bonjour ! Quel ordre voulez-vous me donner ?</span>
+      </div>
+      <div class="ai-input-row">
+        <textarea class="ai-input" id="aiInput" rows="1" placeholder="Ecrivez votre ordre ici... (ex: montre les loyers)" onkeydown="handleKey(event)"></textarea>
+        <button class="ai-mic" id="aiMic" onclick="toggleMic()" title="Commande vocale">&#x1F399;</button>
+        <button class="ai-send" onclick="sendOrder()" title="Envoyer">&#x27A4;</button>
+      </div>
+    </div>
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- MOBILE NAV -->
+<nav class="mobile-nav" id="mobileNav">
+  <div class="mni on" id="mn-dashboard" onclick="goto('dashboard')"><div class="mni-ico">&#x1F4CA;</div>Accueil</div>
+  <div class="mni" id="mn-biens" onclick="goto('biens')"><div class="mni-ico">&#x1F3E0;</div>Biens</div>
+  <div class="mni" id="mn-locataires" onclick="goto('locataires')"><div class="mni-ico">&#x1F465;</div>Locataires</div>
+  <div class="mni" id="mn-loyers" onclick="goto('loyers')"><div class="mni-ico">&#x1F4B0;</div>Loyers</div>
+  <div class="mni" id="mn-maint" onclick="goto('maint')"><div class="mni-ico">&#x1F527;</div>Travaux</div>
+</nav>
+
+<!-- MODALS -->
+<div class="ov" id="mBien" onclick="mayClose(event,'mBien')">
+  <div class="mo"><div class="mh"></div><h2>&#x1F3E0; Nouveau bien</h2>
+    <div class="fr">
+      <div class="fg"><label>Type</label><select id="bType"><option>Appartement</option><option>Maison</option><option>Studio</option><option>Commerce</option></select></div>
+      <div class="fg"><label>Reference</label><input id="bRef" placeholder="Apt-6A"></div>
+    </div>
+    <div class="fg"><label>Adresse</label><input id="bAddr" placeholder="12 rue Victor Hugo"></div>
+    <div class="fr">
+      <div class="fg"><label>Surface m2</label><input id="bSurf" type="number" placeholder="45"></div>
+      <div class="fg"><label>Loyer euros/mois</label><input id="bLoyer" type="number" placeholder="800"></div>
+    </div>
+    <div class="fg"><label>Statut</label><select id="bStatut"><option>Disponible</option><option>Loue</option><option>En travaux</option></select></div>
+    <div class="mf"><button class="bgh" onclick="closeM('mBien')">Annuler</button><button class="btn" onclick="saveBien()">Enregistrer</button></div>
+  </div>
+</div>
+<div class="ov" id="mLoc" onclick="mayClose(event,'mLoc')">
+  <div class="mo"><div class="mh"></div><h2>&#x1F464; Nouveau locataire</h2>
+    <div class="fr">
+      <div class="fg"><label>Prenom</label><input id="lPre" placeholder="Marie"></div>
+      <div class="fg"><label>Nom</label><input id="lNom" placeholder="Dupont"></div>
+    </div>
+    <div class="fg"><label>Email</label><input id="lEmail" placeholder="marie@email.fr"></div>
+    <div class="fr">
+      <div class="fg"><label>Bien</label><select id="lBien"><option>Apt 3B</option><option>Studio Loti</option><option>Maison Moliere</option></select></div>
+      <div class="fg"><label>Loyer euros</label><input id="lLoyer" type="number" placeholder="750"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>Debut bail</label><input id="lDeb" type="date"></div>
+      <div class="fg"><label>Fin bail</label><input id="lFin" type="date"></div>
+    </div>
+    <div class="mf"><button class="bgh" onclick="closeM('mLoc')">Annuler</button><button class="btn" onclick="saveLoc()">Enregistrer</button></div>
+  </div>
+</div>
+<div class="ov" id="mPay" onclick="mayClose(event,'mPay')">
+  <div class="mo"><div class="mh"></div><h2>&#x1F4B0; Saisir un paiement</h2>
+    <div class="fg"><label>Locataire</label><select id="pLoc"><option>Marie Dupont</option><option>Jean Martin</option><option>Sophie Bernard</option><option>Alain Moreau</option></select></div>
+    <div class="fr">
+      <div class="fg"><label>Montant euros</label><input id="pMt" type="number" placeholder="750"></div>
+      <div class="fg"><label>Date</label><input id="pDate" type="date"></div>
+    </div>
+    <div class="mf"><button class="bgh" onclick="closeM('mPay')">Annuler</button><button class="btn" onclick="savePay()">Enregistrer</button></div>
+  </div>
+</div>
+<div class="ov" id="mCharge" onclick="mayClose(event,'mCharge')">
+  <div class="mo"><div class="mh"></div><h2>&#x1F4CB; Nouvelle charge</h2>
+    <div class="fg"><label>Description</label><input id="cDesc" placeholder="Reparation chauffe-eau"></div>
+    <div class="fr">
+      <div class="fg"><label>Bien</label><select id="cBien"><option>Apt 3B</option><option>Studio Loti</option><option>Maison Moliere</option><option>Tous</option></select></div>
+      <div class="fg"><label>Categorie</label><select><option>Plomberie</option><option>Electricite</option><option>Peinture</option><option>Assurance</option><option>Taxe</option><option>Autre</option></select></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>Montant euros</label><input id="cMt" type="number" placeholder="350"></div>
+      <div class="fg"><label>Date</label><input id="cDate" type="date"></div>
+    </div>
+    <div class="mf"><button class="bgh" onclick="closeM('mCharge')">Annuler</button><button class="btn" onclick="saveCharge()">Enregistrer</button></div>
+  </div>
+</div>
+<div class="ov" id="mMaint" onclick="mayClose(event,'mMaint')">
+  <div class="mo"><div class="mh"></div><h2>&#x1F527; Signaler une intervention</h2>
+    <div class="fr">
+      <div class="fg"><label>Bien</label><select id="mBienSel"><option>Apt 3B</option><option>Studio Loti</option><option>Maison Moliere</option><option>Apt 7F</option></select></div>
+      <div class="fg"><label>Priorite</label><select id="mPrio"><option>Urgente</option><option>Normale</option><option>Faible</option></select></div>
+    </div>
+    <div class="fg"><label>Description</label><textarea id="mDesc" rows="3" placeholder="Decrivez le probleme..."></textarea></div>
+    <div class="mf"><button class="bgh" onclick="closeM('mMaint')">Annuler</button><button class="btn" onclick="saveMaint()">Enregistrer</button></div>
+  </div>
+</div>
+
+<div class="tct" id="toasts"></div>
+
+<script>
+// ── DATA ──
+var DB = {
+  biens:[
+    {id:1,icon:"\u{1F3E2}",type:"Appartement",ref:"Apt 3B",addr:"15 rue Flaubert, Lyon",surf:52,loyer:750,statut:"Loue"},
+    {id:2,icon:"\u{1F3E0}",type:"Studio",ref:"Studio Loti",addr:"8 avenue Loti, Lyon",surf:28,loyer:500,statut:"Loue"},
+    {id:3,icon:"\u{1F3E1}",type:"Maison",ref:"Maison Moliere",addr:"3 rue Moliere, Villeurbanne",surf:110,loyer:1200,statut:"Loue"},
+    {id:4,icon:"\u{1F3E2}",type:"Appartement",ref:"Apt 7F",addr:"22 bd Victor Hugo, Lyon",surf:65,loyer:900,statut:"Loue"},
+    {id:5,icon:"\u{1F3EC}",type:"Commerce",ref:"Local President",addr:"5 pl. Republique",surf:40,loyer:500,statut:"Disponible"}
+  ],
+  locataires:[
+    {pre:"Marie",nom:"Dupont",bien:"Apt 3B",loyer:750,fin:"15/01/2025",statut:"Actif"},
+    {pre:"Jean",nom:"Martin",bien:"Studio Loti",loyer:500,fin:"01/09/2024",statut:"Expiration proche"},
+    {pre:"Sophie",nom:"Bernard",bien:"Maison Moliere",loyer:1200,fin:"01/06/2025",statut:"Actif"},
+    {pre:"Alain",nom:"Moreau",bien:"Apt 7F",loyer:900,fin:"01/01/2026",statut:"Actif"}
+  ],
+  loyers:[
+    {loc:"Marie Dupont",bien:"Apt 3B",mt:750,ech:"01/06",pay:"03/06",statut:"Paye"},
+    {loc:"Jean Martin",bien:"Studio Loti",mt:500,ech:"01/06",pay:"--",statut:"En retard"},
+    {loc:"Sophie Bernard",bien:"Maison Moliere",mt:1200,ech:"01/06",pay:"02/06",statut:"Paye"},
+    {loc:"Alain Moreau",bien:"Apt 7F",mt:900,ech:"01/06",pay:"01/06",statut:"Paye"}
+  ],
+  charges:[
+    {desc:"Reparation chauffe-eau",bien:"Studio Loti",cat:"Plomberie",mt:320,date:"12/05/2025"},
+    {desc:"Assurance multirisque",bien:"Tous",cat:"Assurance",mt:840,date:"01/01/2025"},
+    {desc:"Peinture escalier",bien:"Apt 3B",cat:"Peinture",mt:650,date:"20/04/2025"},
+    {desc:"Taxe fonciere",bien:"Maison Moliere",cat:"Taxe",mt:1200,date:"01/10/2025"}
+  ],
+  contrats:[
+    {loc:"Marie Dupont",bien:"Apt 3B",deb:"15/01/2023",fin:"15/01/2025",loyer:750,etat:"Expire"},
+    {loc:"Jean Martin",bien:"Studio Loti",deb:"01/09/2022",fin:"01/09/2024",loyer:500,etat:"Expire"},
+    {loc:"Sophie Bernard",bien:"Maison Moliere",deb:"01/06/2023",fin:"01/06/2025",loyer:1200,etat:"Actif"},
+    {loc:"Alain Moreau",bien:"Apt 7F",deb:"01/01/2024",fin:"01/01/2026",loyer:900,etat:"Actif"}
+  ],
+  maint:[
+    {bien:"Studio Loti",desc:"Chauffe-eau defaillant",prio:"Urgente",date:"02/06/2025",statut:"En attente"},
+    {bien:"Maison Moliere",desc:"Fissure salle de bain",prio:"Normale",date:"28/05/2025",statut:"En cours"},
+    {bien:"Apt 3B",desc:"Fenetre ne ferme plus",prio:"Normale",date:"01/06/2025",statut:"En attente"},
+    {bien:"Apt 7F",desc:"Ampoule hall entree",prio:"Faible",date:"15/05/2025",statut:"Resolu"}
+  ]
+};
+
+// ── NAV ──
+var pages={dashboard:"Tableau de bord",biens:"Biens immobiliers",locataires:"Locataires",loyers:"Loyers",charges:"Charges",contrats:"Contrats",maint:"Maintenance"};
+function goto(p){
+  document.querySelectorAll(".sec").forEach(function(s){s.classList.remove("on")});
+  ["sn","mn"].forEach(function(pfx){
+    document.querySelectorAll("[id^='"+pfx+"-']").forEach(function(el){el.classList.remove("on")});
+  });
+  document.getElementById("sec-"+p).classList.add("on");
+  var sn=document.getElementById("sn-"+p); if(sn)sn.classList.add("on");
+  var mn=document.getElementById("mn-"+p); if(mn)mn.classList.add("on");
+  document.getElementById("ptitle").textContent=pages[p]||p;
+  document.getElementById("maincontent").scrollTop=0;
+}
+
+// ── RENDERS ──
+function renderBiens(){
+  var g=document.getElementById("propCards");
+  g.innerHTML=DB.biens.map(function(b){
+    var tc=b.statut==="Loue"?"tg":b.statut==="Disponible"?"tb":"ty";
+    return "<div class='pc'><div class='pc-thumb'>"+b.icon+"</div><div class='pc-body'><div class='pc-nm'>"+b.ref+"</div><div class='pc-addr'>"+b.addr+"</div><div class='pc-tags'><span class='t "+tc+"'>"+b.statut+"</span><span class='t tx'>"+b.surf+" m2</span><span class='t tx'>"+b.loyer+" e/m</span></div></div></div>";
+  }).join("");
+}
+function renderLoc(){
+  document.getElementById("locList").innerHTML=DB.locataires.map(function(l){
+    var tc=l.statut==="Actif"?"tg":"ty";
+    return "<div class='li'><div class='li-ic'>&#x1F464;</div><div class='li-b'><div class='li-nm'>"+l.pre+" "+l.nom+"</div><div class='li-s'>"+l.bien+" | Fin: "+l.fin+"</div></div><div class='li-r'><div class='li-rv'>"+l.loyer+" e</div><span class='t "+tc+"'>"+l.statut+"</span></div></div>";
+  }).join("");
+}
+function renderLoyers(){
+  document.getElementById("loyerList").innerHTML=DB.loyers.map(function(l){
+    var tc=l.statut==="Paye"?"tg":l.statut==="En retard"?"tr":"ty";
+    return "<div class='li'><div class='li-ic'>"+(l.statut==="En retard"?"&#x26A0;":"&#x2705;")+"</div><div class='li-b'><div class='li-nm'>"+l.loc+"</div><div class='li-s'>"+l.bien+" | Ech. "+l.ech+" | Paye: "+l.pay+"</div></div><div class='li-r'><div class='li-rv'>"+l.mt+" e</div><span class='t "+tc+"'>"+l.statut+"</span></div></div>";
+  }).join("");
+}
+function renderCharges(){
+  document.getElementById("chargeList").innerHTML=DB.charges.map(function(ch){
+    return "<div class='li'><div class='li-ic'>&#x1F4CB;</div><div class='li-b'><div class='li-nm'>"+ch.desc+"</div><div class='li-s'>"+ch.bien+" | "+ch.cat+" | "+ch.date+"</div></div><div class='li-r'><div class='li-rv' style='color:var(--er)'>"+ch.mt+" e</div></div></div>";
+  }).join("");
+}
+function renderContrats(){
+  document.getElementById("contratList").innerHTML=DB.contrats.map(function(ct){
+    var tc=ct.etat==="Actif"?"tg":"tx";
+    return "<div class='li'><div class='li-ic'>&#x1F4C4;</div><div class='li-b'><div class='li-nm'>"+ct.loc+"</div><div class='li-s'>"+ct.bien+" | "+ct.deb+" au "+ct.fin+"</div></div><div class='li-r'><div class='li-rv'>"+ct.loyer+" e</div><span class='t "+tc+"'>"+ct.etat+"</span></div></div>";
+  }).join("");
+}
+function renderMaint(){
+  document.getElementById("maintList").innerHTML=DB.maint.map(function(m){
+    var pc=m.prio==="Urgente"?"tr":m.prio==="Normale"?"ty":"tx";
+    var sc=m.statut==="Resolu"?"tg":m.statut==="En cours"?"tb":"ty";
+    return "<div class='li'><div class='li-ic'>"+(m.prio==="Urgente"?"&#x1F6A8;":"&#x1F527;")+"</div><div class='li-b'><div class='li-nm'>"+m.bien+"</div><div class='li-s'>"+m.desc+"</div></div><div class='li-r'><span class='t "+pc+"'>"+m.prio+"</span><span class='t "+sc+"'>"+m.statut+"</span></div></div>";
+  }).join("");
+}
+function renderChart(){
+  var months=["J","F","M","A","M","J","J","A","S","O","N","D"];
+  var vals=[3200,3400,3650,3500,3800,3850,0,0,0,0,0,0];
+  var mx=3850;
+  document.getElementById("chartBars").innerHTML=vals.map(function(v){
+    var h=v>0?Math.round((v/mx)*56):3;
+    return "<div class='bc'><div class='bf"+(v===0?" dim":"")+"' style='height:"+h+"px'></div></div>";
+  }).join("");
+  document.getElementById("chartLbls").innerHTML=months.map(function(m){
+    return "<div style='flex:1;font-size:.5rem;color:var(--mu);text-align:center'>"+m+"</div>";
+  }).join("");
+}
+
+// ── API KEY ──
+function getApiKey(){
+  return localStorage.getItem("immo_api_key")||"";
+}
+function saveApiKey(){
+  var k=document.getElementById("keyInput").value.trim();
+  if(k){localStorage.setItem("immo_api_key",k);closeM("mKey");aiShow("Cle API enregistree ! Je suis pret a recevoir vos ordres.");toast("Cle API sauvegardee","ok");}
+}
+function checkKey(){
+  if(!getApiKey()){
+    setTimeout(function(){
+      openM("mKey");
+      aiShow("Bienvenue ! Entrez votre cle API Anthropic pour activer l'IA.");
+    },600);
+  }
+}
+
+// ── AI ENGINE ──
+var AI_GREETINGS = [
+  "Bonjour ! Quel ordre voulez-vous me donner ?",
+  "Pret a recevoir vos instructions.",
+  "Qu'est-ce que je peux faire pour vous ?",
+  "A votre service. Quel est votre ordre ?"
+];
+
+function aiShow(msg){
+  document.getElementById("aiMsg").textContent=msg;
+}
+function aiTyping(cb){
+  var b=document.getElementById("aiBubble");
+  var orig=document.getElementById("aiMsg").textContent;
+  b.innerHTML="<div class='ai-dot'></div><div class='ai-typing'><span></span><span></span><span></span></div>";
+  setTimeout(function(){
+    b.innerHTML="<div class='ai-dot'></div><span id='aiMsg'>"+orig+"</span>";
+    if(cb) cb();
+  },700);
+}
+
+function buildContext(){
+  var ctx = "Tu es l'assistant IA de l'application ImmoVoice, une app de gestion immobiliere. ";
+  ctx += "Tu as acces aux donnees suivantes:\n";
+  ctx += "BIENS ("+DB.biens.length+"): "+DB.biens.map(function(b){return b.ref+" ("+b.statut+", "+b.loyer+"e/mois)"}).join(", ")+".\n";
+  ctx += "LOCATAIRES ("+DB.locataires.length+"): "+DB.locataires.map(function(l){return l.pre+" "+l.nom+" ("+l.bien+", "+l.statut+")"}).join(", ")+".\n";
+  var retard=DB.loyers.filter(function(l){return l.statut==="En retard"});
+  ctx += "LOYERS: "+DB.loyers.length+" au total, "+retard.length+" en retard ("+retard.map(function(l){return l.loc}).join(", ")+").\n";
+  ctx += "MAINTENANCE: "+DB.maint.filter(function(m){return m.statut!=="Resolu"}).length+" interventions en attente.\n";
+  ctx += "CHARGES recentes: "+DB.charges.length+" enregistrees.\n\n";
+  ctx += "L'utilisateur va te donner un ordre en langage naturel. Tu dois:\n";
+  ctx += "1. Repondre de facon TRES courte et naturelle en francais (1-2 phrases max)\n";
+  ctx += "2. Si c'est une navigation: prefixer avec NAV:dashboard|biens|locataires|loyers|charges|contrats|maint\n";
+  ctx += "3. Si c'est une action d'ajout: prefixer avec ACTION:ajouter_bien|ajouter_locataire|enregistrer_loyer|ajouter_charge|signaler_maintenance\n";
+  ctx += "4. Si c'est une question sur les donnees: reponds directement avec les chiffres.\n";
+  ctx += "5. Si tu ne comprends pas: demande une clarification.\n";
+  ctx += "Reponds UNIQUEMENT en francais. Sois direct et concis.";
+  return ctx;
+}
+
+function callAI(userMsg){
+  var ctx = buildContext();
+  return fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "x-api-key": getApiKey(),
+      "anthropic-version":"2023-06-01",
+      "anthropic-dangerous-direct-browser-access":"true"
+    },
+    body:JSON.stringify({
+      model:"claude-sonnet-4-20250514",
+      max_tokens:1000,
+      system:ctx,
+      messages:[{role:"user",content:userMsg}]
+    })
+  })
+  .then(function(r){return r.json()})
+  .then(function(d){
+    var text=(d.content&&d.content[0]&&d.content[0].text)||"Je n'ai pas compris. Pouvez-vous reformuler ?";
+    return text;
+  })
+  .catch(function(){
+    return "Desolee, une erreur est survenue. Reessayez.";
+  });
+}
+
+function parseAndExecute(response){
+  var clean = response;
+
+  // New format: [NAV:x] or [ACTION:x] or [INFO]
+  var navMatch = response.match(/\[NAV:(dashboard|biens|locataires|loyers|charges|contrats|maint)\]/i);
+  if(navMatch){
+    goto(navMatch[1].toLowerCase());
+    clean = response.replace(/\[NAV:[^\]]*\]/i,"").trim();
+  }
+
+  var actMatch = response.match(/\[ACTION:(ajouter_bien|ajouter_locataire|enregistrer_loyer|ajouter_charge|signaler_maintenance)\]/i);
+  if(actMatch){
+    var act = actMatch[1].toLowerCase();
+    clean = response.replace(/\[ACTION:[^\]]*\]/i,"").trim();
+    setTimeout(function(){
+      if(act==="ajouter_bien"){goto("biens");openM("mBien")}
+      else if(act==="ajouter_locataire"){goto("locataires");openM("mLoc")}
+      else if(act==="enregistrer_loyer"){goto("loyers");openM("mPay")}
+      else if(act==="ajouter_charge"){goto("charges");openM("mCharge")}
+      else if(act==="signaler_maintenance"){goto("maint");openM("mMaint")}
+    },500);
+  }
+
+  // Remove [INFO] tag too
+  clean = clean.replace(/\[INFO\]/i,"").trim();
+
+  // Fallback: old format without brackets
+  if(!navMatch && !actMatch){
+    var oldNav = response.match(/NAV:(dashboard|biens|locataires|loyers|charges|contrats|maint)/i);
+    if(oldNav){ goto(oldNav[1].toLowerCase()); clean=response.replace(/NAV:\S*/i,"").trim(); }
+    var oldAct = response.match(/ACTION:(ajouter_bien|ajouter_locataire|enregistrer_loyer|ajouter_charge|signaler_maintenance)/i);
+    if(oldAct){
+      var a=oldAct[1].toLowerCase(); clean=response.replace(/ACTION:\S*/i,"").trim();
+      setTimeout(function(){
+        if(a==="ajouter_bien"){goto("biens");openM("mBien")}
+        else if(a==="ajouter_locataire"){goto("locataires");openM("mLoc")}
+        else if(a==="enregistrer_loyer"){goto("loyers");openM("mPay")}
+        else if(a==="ajouter_charge"){goto("charges");openM("mCharge")}
+        else if(a==="signaler_maintenance"){goto("maint");openM("mMaint")}
+      },500);
+    }
+  }
+
+  return clean || response;
+}
+
+function sendOrder(){
+  var inp=document.getElementById("aiInput");
+  var msg=inp.value.trim();
+  if(!msg)return;
+  inp.value="";
+  inp.style.height="auto";
+
+  // Show typing
+  var b=document.getElementById("aiBubble");
+  b.innerHTML="<div class='ai-dot'></div><div class='ai-typing'><span></span><span></span><span></span></div>";
+
+  callAI(msg).then(function(response){
+    var display=parseAndExecute(response);
+    b.innerHTML="<div class='ai-dot'></div><span id='aiMsg'>"+escHtml(display)+"</span>";
+  });
+}
+
+function escHtml(s){
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function handleKey(e){
+  if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendOrder()}
+  // Auto-resize
+  var t=e.target;
+  t.style.height="auto";
+  t.style.height=Math.min(t.scrollHeight,80)+"px";
+}
+
+// ── VOICE ──
+var recog=null,listening=false;
+
+function checkMicSupport(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  var isHttps=location.protocol==="https:"||location.hostname==="localhost"||location.hostname==="127.0.0.1";
+  return SR && isHttps;
+}
+
+function initRec(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR)return null;
+  var r=new SR();
+  r.lang="fr-FR";r.continuous=false;r.interimResults=true;
+  r.onresult=function(e){
+    var t=Array.from(e.results).map(function(x){return x[0].transcript}).join("");
+    document.getElementById("aiInput").value=t;
+    if(e.results[e.results.length-1].isFinal){stopMic();sendOrder();}
+  };
+  r.onerror=function(e){
+    stopMic();
+    if(e.error==="not-allowed"||e.error==="service-not-allowed"){
+      showMicError();
+    }
+  };
+  r.onend=function(){stopMic()};
+  return r;
+}
+
+function showMicError(){
+  // Show inline tooltip under mic button
+  var tip=document.getElementById("micTip");
+  if(tip){tip.style.display="flex";setTimeout(function(){tip.style.display="none"},4000);}
+  var b=document.getElementById("aiBubble");
+  b.innerHTML="<div class='ai-dot'></div><span id='aiMsg'>Le micro necessite HTTPS. Ouvrez le fichier via un serveur local ou deployez sur Netlify/GitHub Pages. En attendant, tapez votre ordre ci-dessous !</span>";
+}
+
+function toggleMic(){
+  if(!checkMicSupport()){
+    showMicError();
+    // Focus input as fallback
+    document.getElementById("aiInput").focus();
+    return;
+  }
+  listening?stopMic():startMic();
+}
+
+function startMic(){
+  if(!recog)recog=initRec();
+  if(!recog){showMicError();return;}
+  try{
+    recog.start();
+    listening=true;
+    document.getElementById("aiMic").classList.add("on");
+    document.getElementById("aiInput").placeholder="Je vous ecoute...";
+  }catch(e){
+    showMicError();
+  }
+}
+
+function stopMic(){
+  if(recog)try{recog.stop()}catch(e){}
+  listening=false;
+  var btn=document.getElementById("aiMic");
+  if(btn)btn.classList.remove("on");
+  var inp=document.getElementById("aiInput");
+  if(inp)inp.placeholder="Ecrivez votre ordre ici...";
+}
+
+// ── MODALS ──
+function openM(id){document.getElementById(id).classList.add("on")}
+function closeM(id){document.getElementById(id).classList.remove("on")}
+function mayClose(e,id){if(e.target===document.getElementById(id))closeM(id)}
+
+function saveBien(){
+  DB.biens.push({id:Date.now(),icon:"\u{1F3E0}",type:document.getElementById("bType").value,ref:document.getElementById("bRef").value||"Nouveau bien",addr:document.getElementById("bAddr").value||"Adresse",surf:document.getElementById("bSurf").value||0,loyer:document.getElementById("bLoyer").value||0,statut:document.getElementById("bStatut").value});
+  renderBiens();closeM("mBien");toast("Bien ajoute","ok");
+  aiShow("Nouveau bien enregistre dans le portefeuille !");
+}
+function saveLoc(){
+  DB.locataires.push({pre:document.getElementById("lPre").value||"Prenom",nom:document.getElementById("lNom").value||"Nom",bien:document.getElementById("lBien").value,loyer:document.getElementById("lLoyer").value||0,fin:document.getElementById("lFin").value||"--",statut:"Actif"});
+  renderLoc();closeM("mLoc");toast("Locataire ajoute","ok");
+  aiShow("Locataire ajoute avec succes !");
+}
+function savePay(){
+  DB.loyers.push({loc:document.getElementById("pLoc").value,bien:"--",mt:document.getElementById("pMt").value||0,ech:"--",pay:document.getElementById("pDate").value||"Auj.",statut:"Paye"});
+  renderLoyers();closeM("mPay");toast("Paiement enregistre","ok");
+  aiShow("Paiement enregistre. Merci !");
+}
+function saveCharge(){
+  DB.charges.push({desc:document.getElementById("cDesc").value||"Charge",bien:document.getElementById("cBien").value,cat:"Autre",mt:document.getElementById("cMt").value||0,date:document.getElementById("cDate").value||"2025"});
+  renderCharges();closeM("mCharge");toast("Charge ajoutee","ok");
+  aiShow("Charge enregistree dans le suivi !");
+}
+function saveMaint(){
+  DB.maint.push({bien:document.getElementById("mBienSel").value,desc:document.getElementById("mDesc").value||"Intervention",prio:document.getElementById("mPrio").value,date:"Auj.",statut:"En attente"});
+  renderMaint();closeM("mMaint");toast("Demande enregistree","ok");
+  aiShow("Intervention signalee. Elle sera traitee rapidement !");
+}
+
+// ── TOAST ──
+function toast(msg,type){
+  var el=document.createElement("div");
+  el.className="tst"+(type?" "+type:"");
+  el.textContent=msg;
+  document.getElementById("toasts").appendChild(el);
+  setTimeout(function(){el.remove()},3000);
+}
+
+// ── INIT ──
+renderBiens();renderLoc();renderLoyers();renderCharges();
+renderContrats();renderMaint();renderChart();
+checkKey();
+</script>
+
+<!-- MIC TOOLTIP -->
+<div id="micTip" style="display:none;position:fixed;bottom:130px;right:16px;z-index:999;background:#1a2035;border:1px solid rgba(249,115,22,.4);border-radius:10px;padding:10px 14px;font-size:.78rem;color:#fed7aa;max-width:240px;line-height:1.5;gap:8px;align-items:flex-start">
+  <span style="font-size:1rem;flex-shrink:0">&#x26A0;</span>
+  <span>Le micro necessite HTTPS.<br>Tapez votre ordre directement.</span>
+</div>
+
+<!-- KEY MODAL -->
+<div class="ov" id="mKey" onclick="mayClose(event,'mKey')">
+  <div class="mo" style="border-radius:18px;max-width:420px;margin:auto">
+    <div class="mh"></div>
+    <h2>&#x1F511; Cle API Anthropic</h2>
+    <p style="font-size:.82rem;color:var(--sub);margin-bottom:16px;line-height:1.6">
+      Pour activer l'IA, entrez votre cle API Anthropic.<br>
+      Obtenez-la sur <strong style="color:var(--acc)">console.anthropic.com</strong><br>
+      <span style="font-size:.73rem;color:var(--mu)">La cle est stockee localement sur votre appareil.</span>
+    </p>
+    <div class="fg">
+      <label>Cle API (sk-ant-...)</label>
+      <input id="keyInput" type="password" placeholder="sk-ant-api03-..." autocomplete="off">
+    </div>
+    <div class="mf">
+      <button class="bgh" onclick="closeM('mKey');aiShow('Entrez une cle API pour activer l\'IA. Cliquez sur le cadenas.')">Plus tard</button>
+      <button class="btn" onclick="saveApiKey()">&#x1F511; Activer l'IA</button>
+    </div>
+  </div>
+</div>
+
+<!-- KEY ICON IN HEADER -->
+</body>
+</html>
